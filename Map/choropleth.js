@@ -1,35 +1,61 @@
 // GeoJSON url 
-var url = "https://chronicdata.cdc.gov/resource/hn4x-zwk7.json";
+var token = 'OWUqA3XHifIffWaYdBATd4TVt';
+var url = `https://chronicdata.cdc.gov/resource/hn4x-zwk7.json?$$app_token=${token}`;
+var colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'].reverse(); // lowest <> highest
+var promises = [];
 
 // Perform a GET request to the URL
-d3.json(url).then(function (data) {
-  // overwrite statesData and looping through each state using cdc data
-  statesData.features.forEach(function (state) {
+// d3.json(url).then(function (data) {
+
+// overwrite statesData and loop through each state using cdc data
+statesData.features.forEach(function (state) {
+  // fetch the data for the given state and save the promise
+  const promise = d3.json(`${url}&locationdesc=${state.properties.name}`).then(function (data) {
+
     // find all data for every instance of each state and extracted value by mapping
     const densities = data.filter(function (item){
-      return item.locationdesc == state.properties.name && item.data_value;
+      return item.data_value;
     }).map(function (item) {
       // return data_value as decimal
       return parseFloat(item.data_value);
     });
-    console.log(densities);
-    // reduce allows you to map an array to a different data type 
-    // a = accumulator; b = value from array
-    const average = densities.reduce(function (sum, density) {
-      return sum + density
-    }, 0) / densities.length;
 
-    // overwriting density property in stateData (for each state inside map)
+    // initialize our average to 0 as the default
+    let average = 0;
+
+    // if densities exist for the state, calculate the average 
+    // we check for densities.length so we don't divide by 0 (which would output NaN)
+    if (densities.length) {
+      // reduce allows you to map an array to a different data type 
+      average = densities.reduce(function (sum, density) {
+        return sum + density
+      }, 0) / densities.length;
+    }
+
+    // overwrite density property in stateData (for each state inside map)
     state.properties.density = average;
+  });
 
-     console.log(average);
+  // push our promise into our promises array
+  promises.push(promise);
+})
 
-    return state;
-  })
+Promise.all(promises).then(function () {
+  const densities = statesData.features.map(function (state) {
+    return state.properties.density;
+  });
+
+  const min = Math.floor(Math.min.apply(null, densities));
+  const max = Math.ceil(Math.max.apply(null, densities));
+  const steps = colors.length;
+  const step = (max - min) / steps;
+  console.log('Min', min);
+  console.log('Max', max);
+  console.log('Steps', steps, 'x', step);
 
   // Create the map object
   var myMap = L.map("map", {
-    center: [39.4169, -119.8348],
+    center: [37.0902, -95.7192],
     zoom: 5
   });
 
@@ -38,24 +64,27 @@ d3.json(url).then(function (data) {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(myMap);
 
-  console.log(statesData);
-
   // Add color
   function getColor(d) {
-      return d > 90 ? '#562395' :
-            d > 80  ? '#6f2dbd' :
-            d > 70  ? '#8B48C5' :
-            d > 60  ? '#A663CC' :
-            d > 50   ? '#A485D5' :
-            d > 40  ? '#B5B4E4' :
-            d > 30   ? '#a0c0e4' :
-            d > 20   ? '#B9E5F2' :
-            d > 10   ? '#B9FAF8' :
-                        '#10D1CD';
+    // from max to min, find the color for the given step
+    // we decrement (loop in reverse) so that we're finding highest values first
+    for (let value = max - step, i = colors.length - 1; value >= min; value -= step, i--) {
+      if (d >= value) {
+        console.log('Density', d);
+        console.log('Color', colors[i]);
+        return colors[i];
+      }
+    }
+
+    console.log('Density', d);
+    console.log('Color', colors[0]);
+    // return the first color by default (for the lowest/min density)
+    return colors[0];
   }
 
   //Style
   function style(feature) {
+    console.log(feature.properties.name);
       return {
           fillColor: getColor(feature.properties.density),
           weight: 2,
@@ -66,8 +95,8 @@ d3.json(url).then(function (data) {
       };
   }
 
-  // Add states to map
-  L.geoJson(statesData, {style: style}).addTo(myMap);
+  // save geojson
+  var geojson;
 
   // Add interaction
   function highlightFeature(e) {
@@ -82,4 +111,21 @@ d3.json(url).then(function (data) {
 
       layer.bringToFront();
   }
+
+  // Mouseout
+  function resetHighlight(e) {
+    geojson.resetStyle(e.target);
+  }
+
+  function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        // click: zoomToFeature
+    });
+  }
+
+  // Add states to map
+  geojson = L.geoJson(statesData, {style: style, onEachFeature: onEachFeature}).addTo(myMap);
+
 });
