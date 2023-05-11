@@ -1,16 +1,26 @@
 // GeoJSON url 
 var token = 'OWUqA3XHifIffWaYdBATd4TVt';
-var url = `https://chronicdata.cdc.gov/resource/hn4x-zwk7.json?$$app_token=${token}`;
+var url = `https://chronicdata.cdc.gov/resource/hn4x-zwk7.json?$$app_token=${token}&$limit=2000`;
 var colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'].reverse(); // lowest <> highest
 var promises = [];
 
-// Perform a GET request to the URL
-// d3.json(url).then(function (data) {
+// Determine total number of states
+console.log('States', statesData.features.length);
+console.log(statesData);
 
 // overwrite statesData and loop through each state using cdc data
-statesData.features.forEach(function (state) {
+statesData.features.forEach(function (stateData) {
+  const state = stateData.properties.name;
+
   // fetch the data for the given state and save the promise
-  const promise = d3.json(`${url}&locationdesc=${state.properties.name}`).then(function (data) {
+  const promise = d3.json(`${url}&locationdesc=${state}`).then(function (data) {
+
+    // Determine total # of records and # of records per year
+    console.log(state, data.reduce(function (result, item) {
+      result.total = (result.total || 0) + 1;
+      result[item.yearstart] = (result[item.yearstart] || 0) + 1;
+      return result;
+    }, {}));
 
     // find all data for every instance of each state and extracted value by mapping
     const densities = data.filter(function (item){
@@ -33,7 +43,7 @@ statesData.features.forEach(function (state) {
     }
 
     // overwrite density property in stateData (for each state inside map)
-    state.properties.density = average;
+    stateData.properties.density = average;
   });
 
   // push our promise into our promises array
