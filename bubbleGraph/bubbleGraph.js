@@ -1,12 +1,6 @@
-// Define a function to build the bar charts
+// Define a function to build the bubble charts
 function buildBubble(data) {
     
-    /*
-    // Extract the "Years", "Question_Percentage" and "Age(years)" dictionaries from the data
-    let years = data["Years"];
-    let question_percentage = data["Question_Percentage"];
-    let age = data["Age(years)"];
-*/
     let years = Object.values(data["Year"]);
     let question_percentage = Object.values(data["Question_Percentage"]);
     let age = Object.values(data["Age(years)"]);
@@ -20,15 +14,15 @@ function buildBubble(data) {
     let bubbleData = [{
         x: age,
         y: years,
-        text: age,
+        text: question_percentage.map(p => `${p.toFixed(2)}%`),
         mode: 'markers',
-            marker: {
-                size: question_percentage,
-                color: question_percentage,
-                opacity: 0.8
-            },
+        marker: {
+            size: question_percentage,
+            color: question_percentage,
+            opacity: 0.8
+        },
         type: 'scatter'
-    }];
+      }];
 
     // Create the bubble chart layout object
     let bubbleLayout = {
@@ -41,11 +35,19 @@ function buildBubble(data) {
         xaxis: {
             title: '<b>Age (years)<b>',
         },
-        margin: { t: 60, l: 100 }
+        margin: { t: 60, l: 100 },
+        hovermode: 'closest', // set the hover mode to 'closest'
+        hoverlabel: { // customize the hover label
+            bgcolor: '#fff',
+            bordercolor: '#000',
+            font: {size: 14},
+            align: 'left'
+        },
     };
         
     // Use Plotly to create the bubble chart
     Plotly.newPlot("bubble", bubbleData, bubbleLayout);
+    
 };
 
 // Load the JSON data and call the buildBubble function
@@ -55,5 +57,5 @@ d3.json("health_factors.json").then(function(data) {
     console.log(data); 
 
     // Call the buildBubble function
-    buildBubble(data); 
+    buildBubble(data);
 });
