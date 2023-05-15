@@ -157,7 +157,7 @@ Promise.all(promises).then(function () {
 
   info.update = function (props) {
     this._div.innerHTML = '<h4>US Average Obesity Levels</h4>' +  (props ?
-       '<b>' + props.name + '</b><br />' + (props.density).toFixed(2) + '% of adults are obese'
+       '<b>' + props.name + '</b><br />' + (props.density).toFixed(2) + '% of adults have obesity'
        : 'Hover over a state');
   };
   info.addTo(myMap)
