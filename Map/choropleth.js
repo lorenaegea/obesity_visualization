@@ -1,16 +1,26 @@
 // GeoJSON url 
 var token = 'OWUqA3XHifIffWaYdBATd4TVt';
-var url = `https://chronicdata.cdc.gov/resource/hn4x-zwk7.json?$$app_token=${token}`;
-var colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'].reverse(); // lowest <> highest
+var url = `https://chronicdata.cdc.gov/resource/hn4x-zwk7.json?$$app_token=${token}&$limit=2000`;
+var colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026']; // lowest <> highest
 var promises = [];
 
-// Perform a GET request to the URL
-// d3.json(url).then(function (data) {
+// Determine total number of states
+console.log('States', statesData.features.length);
+console.log(statesData);
 
 // overwrite statesData and loop through each state using cdc data
-statesData.features.forEach(function (state) {
+statesData.features.forEach(function (stateData) {
+  const state = stateData.properties.name;
+
   // fetch the data for the given state and save the promise
-  const promise = d3.json(`${url}&locationdesc=${state.properties.name}`).then(function (data) {
+  const promise = d3.json(`${url}&locationdesc=${state}`).then(function (data) {
+
+    // Determine total # of records and # of records per year
+    console.log(state, data.reduce(function (result, item) {
+      result.total = (result.total || 0) + 1;
+      result[item.yearstart] = (result[item.yearstart] || 0) + 1;
+      return result;
+    }, {}));
 
     // find all data for every instance of each state and extracted value by mapping
     const densities = data.filter(function (item){
@@ -33,11 +43,13 @@ statesData.features.forEach(function (state) {
     }
 
     // overwrite density property in stateData (for each state inside map)
-    state.properties.density = average;
+    stateData.properties.density = average;
   });
 
   // push our promise into our promises array
   promises.push(promise);
+
+  // console.log(data)
 })
 
 Promise.all(promises).then(function () {
@@ -45,6 +57,7 @@ Promise.all(promises).then(function () {
     return state.properties.density;
   });
 
+  // find min & max to determine color variation
   const min = Math.floor(Math.min.apply(null, densities));
   const max = Math.ceil(Math.max.apply(null, densities));
   const steps = colors.length;
@@ -95,6 +108,11 @@ Promise.all(promises).then(function () {
       };
   }
 
+    statesData.features.forEach(function (stateData){
+      console.log(stateData.properties.density)
+    });
+      
+
   // save geojson
   var geojson;
 
@@ -104,28 +122,81 @@ Promise.all(promises).then(function () {
 
       layer.setStyle({
           weight: 5,
-          color: '#666',
+          color: '#800026',
           dashArray: '',
           fillOpacity: 0.7
       });
 
-      layer.bringToFront();
+      layer.bringToFront()
+      info.update(layer.feature.properties); // update control for highlight
   }
 
   // Mouseout
   function resetHighlight(e) {
-    geojson.resetStyle(e.target);
+    geojson.resetStyle(e.target)
+    info.update(); // reset control
   }
 
   function onEachFeature(feature, layer) {
     layer.on({
         mouseover: highlightFeature,
         mouseout: resetHighlight,
-        // click: zoomToFeature
-    });
+    })
+    // show average obesity percentage (rounded to 2 decimal places)
+    layer.bindPopup(`<b>Average Obesity Level: ${(feature.properties.density).toFixed(2)}%</b>`);
+    console.log(feature)
   }
+
+  // add control - hover box with info on top right
+  var info = L.control();
+
+  info.onAdd = function (myMap) {
+    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+    this.update();
+    return this._div};
+
+  info.update = function (props) {
+    this._div.innerHTML = '<h4>US Average Obesity Levels</h4>' +  (props ?
+       '<b>' + props.name + '</b><br />' + (props.density).toFixed(2) + '% of adults are obese'
+       : 'Hover over a state');
+  };
+  info.addTo(myMap)
+
+  // create legend 
+  let legend = L.control({position: "bottomright"});
+  legend.onAdd = function() {
+      // make a div with class = "info legend"
+      let div = L.DomUtil.create("div", "info-legend");
+      let limits = [29, 29.71, 30.42, 31.13, 31.84, 32.55, 33.26, 34] // range evenly divided into 8
+      let labels = []
+
+      let legendInfo = "<h3>Adult Population with Obesity</h3>" +
+      "<div class = \"labels\">" + 
+      "<div class = \"min\">" + limits[0] + "</div>" +
+      "<div class = \"max\">" + limits[limits.length-1].toLocaleString() + 
+      "</div>"
+      "</div>"; 
+
+      div.innerHTML = legendInfo
+
+      limits.forEach(
+        function(limit, index)
+        {
+            // generate the li with each color and push to the labels array
+            labels.push("<li style=\"background: " + colors[index]
+            +"\"></li>");
+        }
+    );
+
+    div.innerHTML += "<ul" + labels.join("") + "</ul>";
+      
+  return div; 
+  
+  }
+  legend.addTo(myMap)
 
   // Add states to map
   geojson = L.geoJson(statesData, {style: style, onEachFeature: onEachFeature}).addTo(myMap);
 
 });
+
