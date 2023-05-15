@@ -108,6 +108,11 @@ Promise.all(promises).then(function () {
       };
   }
 
+    statesData.features.forEach(function (stateData){
+      console.log(stateData.properties.density)
+    });
+      
+
   // save geojson
   var geojson;
 
@@ -194,3 +199,4 @@ Promise.all(promises).then(function () {
   geojson = L.geoJson(statesData, {style: style, onEachFeature: onEachFeature}).addTo(myMap);
 
 });
+
