@@ -27,7 +27,7 @@ function buildBubble(data) {
     // Create the bubble chart layout object
     let bubbleLayout = {
         title: {
-            text: "<b>Percent of adults who achieve physical activity goal based on age<b>",
+            text: "<b>Percent of Adults Who Achieve Physical Activity Goal Based on Age<b>",
             font: {
                 size: 20
             }
@@ -36,8 +36,10 @@ function buildBubble(data) {
             title: '<b>Age (years)<b>',
         },
         margin: { t: 60, l: 100 },
-        hovermode: 'closest', // set the hover mode to 'closest'
-        hoverlabel: { // customize the hover label
+        // Set the hover mode to 'closest'
+        hovermode: 'closest', 
+        // Customize the hover label
+        hoverlabel: { 
             bgcolor: '#fff',
             bordercolor: '#000',
             font: {size: 14},
