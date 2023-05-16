@@ -27,7 +27,7 @@ function buildBubble(data) {
     // Create the bubble chart layout object
     let bubbleLayout = {
         title: {
-            text: "<b>Percent of Adults Who Achieve Physical Activity Goal Based on Age<b>",
+            text: "<b>Percent of US Adults Who Achieve Physical Activity Goal Based on Age<b>",
             font: {
                 size: 20
             }
