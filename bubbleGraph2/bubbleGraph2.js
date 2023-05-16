@@ -56,7 +56,7 @@ function buildBubble(data) {
         x: protein,        
         y: carbs,     
         z: fat,   
-        text: foodName.map((name, index) => {return `Food: ${name}<br>Protein: ${protein[index]}g<br>Carbs: ${carbs[index]}g<br>Fat: ${fat[index]}g<br>Calories: ${calories[index]}cal`;}),
+        hovertemplate: foodName.map((name, index) => {return `<b>Food:</b> ${name}<br><b>Protein:</b> ${protein[index]}g<br><b>Carbs:</b> ${carbs[index]}g<br><b>Fat:</b> ${fat[index]}g<br><b>Calories:</b> ${calories[index]}cal`;}),
         mode: 'markers',
         marker: {
             size: calories / 1000000,
@@ -73,14 +73,25 @@ function buildBubble(data) {
                 size: 20
             }
         },
-        xaxis: {
-            title: '<b>Protein (g)<b>',
-        },
-        yaxis: {
-            title: '<b>Carbs (g)<b>',
-        },
-        zaxis: {
-            title: '<b>Fat (g)<b>',
+        scene: {
+            xaxis: {
+                title: "Protein (g)",
+                titlefont: {
+                    size: 14
+                }
+            },
+            yaxis: {
+                title: "Carbs (g)",
+                titlefont: {
+                    size: 14
+                }
+            },
+            zaxis: {
+                title: "Fat (g)",
+                titlefont: {
+                    size: 14
+                }
+            }
         },
         margin: { t: 60, l: 100 }
     };
