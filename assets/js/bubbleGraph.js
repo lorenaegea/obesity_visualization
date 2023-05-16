@@ -59,7 +59,7 @@ function buildBubble(data) {
   var s2011 = document.getElementById("2011");
 
   var v2011 = math
-    .chain(8)
+    .chain(0)
     .add(question_percentage[0])
     .add(question_percentage[1])
     .add(question_percentage[2])
@@ -71,7 +71,7 @@ function buildBubble(data) {
   s2011.innerHTML = "2011: " + math.round(v2011, 2) + "%";
 
   var v2013 = math
-    .chain(8)
+    .chain(0)
     .add(question_percentage[6])
     .add(question_percentage[7])
     .add(question_percentage[8])
@@ -83,7 +83,7 @@ function buildBubble(data) {
   s2013.innerHTML = "2013: " + math.round(v2013, 2) + "%";
 
   var v2015 = math
-    .chain(8)
+    .chain(0)
     .add(question_percentage[12])
     .add(question_percentage[13])
     .add(question_percentage[14])
@@ -95,7 +95,7 @@ function buildBubble(data) {
   s2015.innerHTML = "2015: " + math.round(v2015, 2) + "%";
 
   var v2017 = math
-    .chain(8)
+    .chain(0)
     .add(question_percentage[18])
     .add(question_percentage[19])
     .add(question_percentage[20])
@@ -107,7 +107,7 @@ function buildBubble(data) {
   s2017.innerHTML = "2017: " + math.round(v2017, 2) + "%";
 
   var v2019 = math
-    .chain(8)
+    .chain(0)
     .add(question_percentage[24])
     .add(question_percentage[25])
     .add(question_percentage[26])
