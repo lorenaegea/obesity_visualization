@@ -14,8 +14,8 @@ var colors = [
 var promises = [];
 
 // Determine total number of states
-console.log("States", statesData.features.length);
-console.log(statesData);
+// console.log("States", statesData.features.length);
+// console.log(statesData);
 
 // overwrite statesData and loop through each state using cdc data
 statesData.features.forEach(function (stateData) {
@@ -24,14 +24,14 @@ statesData.features.forEach(function (stateData) {
   // fetch the data for the given state and save the promise
   const promise = d3.json(`${url}&locationdesc=${state}`).then(function (data) {
     // Determine total # of records and # of records per year
-    console.log(
-      state,
-      data.reduce(function (result, item) {
-        result.total = (result.total || 0) + 1;
-        result[item.yearstart] = (result[item.yearstart] || 0) + 1;
-        return result;
-      }, {})
-    );
+    // console.log(
+    //   state,
+    //   data.reduce(function (result, item) {
+    //     result.total = (result.total || 0) + 1;
+    //     result[item.yearstart] = (result[item.yearstart] || 0) + 1;
+    //     return result;
+    //   }, {})
+    // );
 
     // find all data for every instance of each state and extracted value by mapping
     const densities = data
@@ -76,9 +76,9 @@ Promise.all(promises).then(function () {
   const max = Math.ceil(Math.max.apply(null, densities));
   const steps = colors.length;
   const step = (max - min) / steps;
-  console.log("Min", min);
-  console.log("Max", max);
-  console.log("Steps", steps, "x", step);
+  // console.log("Min", min);
+  // console.log("Max", max);
+  // console.log("Steps", steps, "x", step);
 
   // Create the map object
   var myMap = L.map("map", {
@@ -102,21 +102,21 @@ Promise.all(promises).then(function () {
       value -= step, i--
     ) {
       if (d >= value) {
-        console.log("Density", d);
-        console.log("Color", colors[i]);
+        // console.log("Density", d);
+        // console.log("Color", colors[i]);
         return colors[i];
       }
     }
 
-    console.log("Density", d);
-    console.log("Color", colors[0]);
+    // console.log("Density", d);
+    // console.log("Color", colors[0]);
     // return the first color by default (for the lowest/min density)
     return colors[0];
   }
 
   //Style
   function style(feature) {
-    console.log(feature.properties.name);
+    // console.log(feature.properties.name);
     return {
       fillColor: getColor(feature.properties.density),
       weight: 2,
@@ -128,7 +128,7 @@ Promise.all(promises).then(function () {
   }
 
   statesData.features.forEach(function (stateData) {
-    console.log(stateData.properties.density);
+    // console.log(stateData.properties.density);
   });
 
   // save geojson
@@ -164,7 +164,7 @@ Promise.all(promises).then(function () {
     layer.bindPopup(
       `<b>Average Obesity Level: ${feature.properties.density.toFixed(2)}%</b>`
     );
-    console.log(feature);
+    // console.log(feature);
   }
 
   // add control - hover box with info on top right
