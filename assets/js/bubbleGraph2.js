@@ -6,12 +6,12 @@ function buildBubble2(data) {
   let foodName = Object.values(data["Descrip"]);
   let foodGroup = Object.values(data["FoodGroup"]);
 
-  console.log(protein);
-  console.log(carbs);
-  console.log(fat);
-  console.log(calories);
-  console.log(foodName);
-  console.log(foodGroup);
+  // console.log(protein);
+  // console.log(carbs);
+  // console.log(fat);
+  // console.log(calories);
+  // console.log(foodName);
+  // console.log(foodGroup);
 
   let markerColor = [];
   for (let i = 0; i < foodGroup.length; i++) {
